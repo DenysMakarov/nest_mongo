@@ -5,6 +5,8 @@ import { Post } from '../../posts/schemas/Post.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { Roles } from '@/common/enums';
 
+export type UserDocument = User & mongoose.Document;
+
 @Schema()
 export class User {
   @ApiProperty({ example: 'JohnDoe', description: 'The username of the user' })

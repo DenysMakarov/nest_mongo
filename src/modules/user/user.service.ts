@@ -37,7 +37,7 @@ export class UserService {
   }
 
   getUserById(id: string) {
-    return this.userModel.findById(id).populate('settings');
+    return this.userModel.findById(id).populate(['settings', 'posts']);
   }
 
   updateUser(id: string, UpdateUserDetailDto: UpdateUserDetailDto) {
@@ -49,4 +49,6 @@ export class UserService {
   deleteUser(id: string) {
     return this.userModel.findByIdAndDelete(id);
   }
+
 }
+

@@ -1,6 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
-
 @Schema()
 export class Roles {
   @Prop({ required: true })

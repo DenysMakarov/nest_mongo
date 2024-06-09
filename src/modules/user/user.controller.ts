@@ -8,35 +8,41 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+// import { ValidationPipe } from '@/common/pipes/validation.pipe';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/CreateUserDto';
 import mongoose from 'mongoose';
 import { UpdateUserDetailDto } from './dto/UpdateUserDetailDto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from '@/modules/auth/role-auth.decorator';
+import RoleGuard from '@/modules/auth/role.guard';
+import JwtAuthGuard from "@/modules/auth/jwt-auth.guard";
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'User created successfully',
-    type: CreateUserDto,
-  })
-  @Post()
-  @UsePipes(new ValidationPipe())
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    const user = await this.userService.getUserByEmail(createUserDto.email);
-    if (user) {
-      throw new ConflictException('User already exists');
-    }
-    return this.userService.createUser(createUserDto);
-  }
+  // @ApiOperation({ summary: 'Create a new user' })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: 'User created successfully',
+  //   type: CreateUserDto,
+  // })
+  // @UsePipes(new ValidationPipe())
+  // @Post()
+  // async registration(@Body() createUserDto: CreateUserDto) {
+  //   const user = await this.userService.getUserByEmail(createUserDto.email);
+  //   if (user) {
+  //     throw new ConflictException('User already exists');
+  //   }
+  //   return this.userService.createUser(createUserDto);
+  // }
 
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
@@ -45,6 +51,9 @@ export class UserController {
     type: CreateUserDto,
     isArray: true,
   })
+  // @Roles('ADMIN')
+  // @UseGuards(RoleGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAllUsers() {
     return this.userService.getAllUsers();
@@ -53,8 +62,6 @@ export class UserController {
   @Get('email/:email')
   @UsePipes(new ValidationPipe())
   async getUserByEmail(@Param('email') email: string) {
-    // const isValidEmail = IsEmail(email);
-    // if (!isValidEmail) throw new HttpException('Invalid Email', 400);
     const user = await this.userService.getUserByEmail(email);
     if (!user) throw new HttpException('User not found', 404);
     return user;
@@ -89,5 +96,10 @@ export class UserController {
     const deletedUser = await this.userService.deleteUser(id);
     if (!deletedUser) throw new HttpException('User not found', 404);
     return deletedUser;
+  }
+
+  @Get('current/user')
+  async getCurrentUser(@Req() req: any){
+    return 'current user';
   }
 }

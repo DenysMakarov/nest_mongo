@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/user/user.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { PostsModule } from './modules/posts/posts.module';
-import { ConfigModule } from '@nestjs/config';
-import { RolesModule } from './modules/roles/roles.module';
-import * as process from 'process';
+import { MiddlewareConsumer, Module, RequestMethod } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { AuthModule } from "./modules/auth/auth.module";
+import { UserModule } from "./modules/user/user.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { PostsModule } from "./modules/posts/posts.module";
+import { ConfigModule } from "@nestjs/config";
+import { RolesModule } from "./modules/roles/roles.module";
+import * as process from "process";
+import { AuthMiddleware } from "@/modules/user/middleware/auth.middleware";
 
 @Module({
   imports: [
@@ -24,4 +25,11 @@ import * as process from 'process';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(AuthMiddleware).forRoutes({
+  //     path: '*',
+  //     method: RequestMethod.ALL,
+  //   });
+  // }
+}

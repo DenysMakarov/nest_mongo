@@ -5,11 +5,11 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  ValidateNested
-} from "class-validator";
+  Length,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserSettings } from '../schemas/UserSettings.schema';
-import { Prop } from '@nestjs/mongoose';
 
 export class CreateUserSettingsDto {
   @ApiProperty({
@@ -37,6 +37,7 @@ export class CreateUserDto {
   @ApiProperty({ example: 'JohnDoe', description: 'The username of the user' })
   @IsNotEmpty()
   @IsString()
+  @Length(2, 50)
   username: string;
 
   @ApiProperty({
@@ -44,13 +45,14 @@ export class CreateUserDto {
     description: 'The uniq email of the user',
   })
   @IsNotEmpty()
-  @IsString()
+  @IsString({ message: 'Invalid email' })
   @IsEmail()
   email: string;
 
   @ApiProperty({ example: 'password', description: 'The password of the user' })
   @IsNotEmpty()
   @IsString()
+  @Length(6, 16, { message: 'Password must be between 6 and 16 characters' })
   password: string;
 
   @ApiProperty({
