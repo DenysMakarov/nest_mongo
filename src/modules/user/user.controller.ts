@@ -1,6 +1,6 @@
 import {
+  BadRequestException,
   Body,
-  ConflictException,
   Controller,
   Delete,
   Get,
@@ -9,19 +9,23 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-// import { ValidationPipe } from '@/common/pipes/validation.pipe';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/CreateUserDto';
 import mongoose from 'mongoose';
 import { UpdateUserDetailDto } from './dto/UpdateUserDetailDto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Roles } from '@/modules/auth/role-auth.decorator';
-import RoleGuard from '@/modules/auth/role.guard';
-import JwtAuthGuard from "@/modules/auth/jwt-auth.guard";
+import JwtAuthGuard from '@/modules/auth/jwt-auth.guard';
+import { ExpressRequestInterface } from '@/types/expressRequest';
+import { UserDecorator } from '@/modules/user/decorators/user.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('users')
 @Controller('users')
@@ -53,7 +57,7 @@ export class UserController {
   })
   // @Roles('ADMIN')
   // @UseGuards(RoleGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get()
   getAllUsers() {
     return this.userService.getAllUsers();
@@ -99,7 +103,57 @@ export class UserController {
   }
 
   @Get('current/user')
-  async getCurrentUser(@Req() req: any){
-    return 'current user';
+  async getCurrentUser(
+    @Req() req: ExpressRequestInterface,
+    // @UserDecorator('id') user: any,
+    // @UserDecorator('email') user: any,
+    @UserDecorator(['id', 'email']) user: any,
+  ) {
+    // return req.user;
+    return user; // from decorator
+  }
+
+  // @Post('image')
+  // uploadFile(@UploadedFile() file) {
+  //   this.userService.uploadAvatar(file);
+  //   // return { message: 'File uploaded successfully!', filePath: file.path };
+  // }
+
+  @Post('image')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          console.log('Destination:', './uploads');
+          callback(null, './uploads');
+        },
+        filename: (req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          console.log('Filename:', `${file.fieldname}-${uniqueSuffix}${ext}`);
+          callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        console.log('File mimetype:', file.mimetype);
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          console.log('File rejected:', file.mimetype);
+          return callback(
+            new BadRequestException('Only image files are allowed!'),
+            false,
+          );
+        }
+        console.log('File accepted:', file.mimetype);
+        callback(null, true);
+      },
+    }),
+  )
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    console.log('File uploaded:', file);
+    return { message: 'File uploaded successfully!', filePath: file.path };
   }
 }

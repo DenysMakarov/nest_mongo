@@ -8,6 +8,7 @@ import {
   UserSettingsSchema,
 } from './schemas/UserSettings.schema';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { FileModule } from "@/modules/file/file.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from '@/modules/auth/auth.module';
       { name: UserSettings.name, schema: UserSettingsSchema },
     ]),
     forwardRef(() => AuthModule),
+    FileModule,
   ],
   providers: [UserService],
   controllers: [UserController],

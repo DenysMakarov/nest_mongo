@@ -5,6 +5,7 @@ import { User } from './schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdateUserDetailDto } from './dto/UpdateUserDetailDto';
 import { UserSettings } from './schemas/UserSettings.schema';
+import { FileService } from '@/modules/file/file.service';
 
 @Injectable()
 export class UserService {
@@ -12,6 +13,7 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(UserSettings.name)
     private userSettingsModel: Model<UserSettings>,
+    private fileService: FileService,
   ) {}
 
   async createUser({ settings, ...createUserDto }: CreateUserDto) {
@@ -50,5 +52,8 @@ export class UserService {
     return this.userModel.findByIdAndDelete(id);
   }
 
+  async uploadAvatar(file: any) {
+    const fileName = this.fileService.createFile(file);
+    console.log('fileName', fileName);
+  }
 }
-
