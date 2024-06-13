@@ -10,29 +10,8 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserSettings } from '../schemas/UserSettings.schema';
+import { CreateUserSettingsDto } from '@/modules/user/dto/CreateSettingsDto';
 
-export class CreateUserSettingsDto {
-  @ApiProperty({
-    example: true,
-    description: 'Whether the user receives notifications',
-  })
-  @IsOptional()
-  @IsBoolean()
-  receiveNotifications?: boolean;
-
-  @ApiProperty({
-    example: false,
-    description: 'Whether the user receives emails',
-  })
-  @IsOptional()
-  @IsBoolean()
-  receiveEmails?: boolean;
-
-  @ApiProperty({ example: false, description: 'Whether the user receives SMS' })
-  @IsOptional()
-  @IsBoolean()
-  receiveSMS?: boolean;
-}
 export class CreateUserDto {
   @ApiProperty({ example: 'JohnDoe', description: 'The username of the user' })
   @IsNotEmpty()

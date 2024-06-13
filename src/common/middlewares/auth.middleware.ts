@@ -1,15 +1,23 @@
+/*
+ * Auth middleware is not used / Guards used instead
+ * */
+
 import {
   Injectable,
   NestMiddleware,
   UnauthorizedException,
 } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
-import { ExpressRequestInterface } from '@/types/expressRequest';
+import { NextFunction, Response } from 'express';
+import { ExpressRequestInterface } from '@/common/types/request.interfaces';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from '@/modules/auth/auth.service';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private authService: AuthService,
+  ) {}
 
   async use(req: ExpressRequestInterface, res: Response, next: NextFunction) {
     if (!req.headers.authorization) {
@@ -18,7 +26,7 @@ export class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    const token = this.extractTokenFromHeader(req);
+    const token = this.authService.extractTokenFromHeader(req);
 
     if (!token) {
       throw new UnauthorizedException();
@@ -33,10 +41,5 @@ export class AuthMiddleware implements NestMiddleware {
     } catch (e) {
       throw new UnauthorizedException();
     }
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

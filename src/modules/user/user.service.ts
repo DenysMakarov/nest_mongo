@@ -5,7 +5,6 @@ import { User } from './schemas/User.schema';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { UpdateUserDetailDto } from './dto/UpdateUserDetailDto';
 import { UserSettings } from './schemas/UserSettings.schema';
-import { FileService } from '@/modules/file/file.service';
 
 @Injectable()
 export class UserService {
@@ -13,7 +12,6 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(UserSettings.name)
     private userSettingsModel: Model<UserSettings>,
-    private fileService: FileService,
   ) {}
 
   async createUser({ settings, ...createUserDto }: CreateUserDto) {
@@ -35,25 +33,26 @@ export class UserService {
   }
 
   getAllUsers() {
-    return this.userModel.find().populate(['settings', 'posts']);
+    return this.userModel.find().populate(['settings']);
+    // return this.userModel.find().populate(['settings', 'posts']);
   }
 
   getUserById(id: string) {
     return this.userModel.findById(id).populate(['settings', 'posts']);
   }
 
-  updateUser(id: string, UpdateUserDetailDto: UpdateUserDetailDto) {
-    return this.userModel.findByIdAndUpdate(id, UpdateUserDetailDto, {
-      new: true,
-    });
-  }
+  // updateUser(id: string, UpdateUserDetailDto: UpdateUserDetailDto) {
+  //   return this.userModel.findByIdAndUpdate(id, UpdateUserDetailDto, {
+  //     new: true,
+  //   });
+  // }
 
   deleteUser(id: string) {
     return this.userModel.findByIdAndDelete(id);
   }
 
-  async uploadAvatar(file: any) {
-    const fileName = this.fileService.createFile(file);
-    console.log('fileName', fileName);
-  }
+  // async uploadAvatar(file: any) {
+  //   const fileName = this.fileService.createFile(file);
+  //   console.log('fileName', fileName);
+  // }
 }
